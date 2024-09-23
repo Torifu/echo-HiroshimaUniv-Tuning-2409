@@ -100,8 +100,7 @@ pub async fn user_profile_image_handler(
     Ok(HttpResponse::Ok()
         .content_type("image/png")
         .body(profile_image_byte))
-
-    println!("user_profile_image_handler 时间间隔: {:?}", SystemTime::now()
+    println!("logout_handler 时间间隔: {:?}", SystemTime::now()
         .duration_since(UNIX_EPOCH)
         .unwrap()
         .as_millis());    
