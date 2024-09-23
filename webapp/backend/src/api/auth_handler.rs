@@ -45,20 +45,36 @@ pub async fn login_handler(
     service: web::Data<AuthService<AuthRepositoryImpl>>,
     req: web::Json<LoginRequestDto>,
 ) -> Result<HttpResponse, AppError> {
+
+    use std::time::{SystemTime, UNIX_EPOCH};
+    
     match service.login_user(&req.username, &req.password).await {
         Ok(response) => Ok(HttpResponse::Ok().json(response)),
         Err(err) => Err(err),
     }
+
+    println!("login_handler 时间间隔: {:?}", SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap()
+        .as_millis());
 }
 
 pub async fn logout_handler(
     service: web::Data<AuthService<AuthRepositoryImpl>>,
     req: web::Json<LogoutRequestDto>,
 ) -> Result<HttpResponse, AppError> {
+
+    use std::time::{SystemTime, UNIX_EPOCH};
+
     match service.logout_user(&req.session_token).await {
         Ok(_) => Ok(HttpResponse::Ok().finish()),
         Err(_) => Ok(HttpResponse::Ok().finish()),
     }
+
+    println!("logout_handler 时间间隔: {:?}", SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap()
+        .as_millis());
 }
 
 #[derive(Deserialize, Debug)]
@@ -72,6 +88,9 @@ pub async fn user_profile_image_handler(
     path: web::Path<i32>,
     query: web::Query<UserProfileImageQueryParams>,
 ) -> Result<HttpResponse, AppError> {
+
+    use std::time::{SystemTime, UNIX_EPOCH};
+    
     let user_id = path.into_inner();
     let width = query.w.unwrap_or(500);
     let height = query.h.unwrap_or(500);
@@ -81,4 +100,9 @@ pub async fn user_profile_image_handler(
     Ok(HttpResponse::Ok()
         .content_type("image/png")
         .body(profile_image_byte))
+
+    println!("user_profile_image_handler 时间间隔: {:?}", SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap()
+        .as_millis());    
 }
