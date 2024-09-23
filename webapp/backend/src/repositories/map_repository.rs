@@ -51,31 +51,35 @@ impl MapRepository for MapRepositoryImpl {
         Ok(nodes)
     }
 
-    use sqlx::query_as;
+    async fn get_all_edges(&self, area_id: Option<i32>) -> Result<Vec<Edge>, sqlx::Error> {
+        let where_clause = match area_id {
+            Some(_) => "JOIN nodes n ON e.node_a_id = n.id WHERE n.area_id = ?",
+            None => "",
+        };
 
-    pub async fn get_all_edges(&self, area_id: Option<i32>) -> Result<Vec<Edge>, sqlx::Error> {
-        let base_query = "
-            SELECT
+        let sql = format!(
+            "SELECT
                 e.node_a_id,
                 e.node_b_id,
                 e.weight
             FROM
-                edges e";
+                edges e
+            {}",
+            where_clause
+        );
 
-        // 如果有 area_id，添加 JOIN 和 WHERE 子句，否则只使用基础查询
-        let sql = if area_id.is_some() {
-            format!("{} JOIN nodes n ON e.node_a_id = n.id WHERE n.area_id = ?", base_query)
-        } else {
-            base_query.to_string()
-        };
-
-        // 使用 query_as 直接执行查询
-        let query = sqlx::query_as::<_, Edge>(&sql);
-
-        // 绑定参数（如果有）并执行查询
         let edges = match area_id {
-            Some(area_id) => query.bind(area_id).fetch_all(&self.pool).await?,
-            None => query.fetch_all(&self.pool).await?,
+            Some(area_id) => {
+                sqlx::query_as::<_, Edge>(&sql)
+                    .bind(area_id)
+                    .fetch_all(&self.pool)
+                    .await?
+            }
+            None => {
+                sqlx::query_as::<_, Edge>(&sql)
+                    .fetch_all(&self.pool)
+                    .await?
+            }
         };
 
         Ok(edges)
