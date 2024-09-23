@@ -21,10 +21,19 @@ pub async fn update_order_status_handler(
     >,
     req: web::Json<UpdateOrderStatusRequestDto>,
 ) -> Result<HttpResponse, AppError> {
+    
+    use std::time::{SystemTime, UNIX_EPOCH};
+
     match service.update_order_status(req.order_id, &req.status).await {
         Ok(_) => Ok(HttpResponse::Ok().finish()),
         Err(err) => Err(err),
     }
+
+    println!("update_order_status_handler 时间间隔: {:?}", SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap()
+        .as_millis());
+
 }
 
 pub async fn get_order_handler(
@@ -38,10 +47,18 @@ pub async fn get_order_handler(
     >,
     path: web::Path<i32>,
 ) -> Result<HttpResponse, AppError> {
+
+    use std::time::{SystemTime, UNIX_EPOCH};
+
     match service.get_order_by_id(path.into_inner()).await {
         Ok(order) => Ok(HttpResponse::Ok().json(order)),
         Err(err) => Err(err),
     }
+
+    println!("get_order_handler 时间间隔: {:?}", SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap()
+        .as_millis());
 }
 
 #[derive(Deserialize, Debug)]
@@ -65,6 +82,9 @@ pub async fn get_paginated_orders_handler(
     >,
     query: web::Query<PaginatedOrderQuery>,
 ) -> Result<HttpResponse, AppError> {
+
+    use std::time::{SystemTime, UNIX_EPOCH};
+
     match service
         .get_paginated_orders(
             query.page.unwrap_or(0),
@@ -79,6 +99,11 @@ pub async fn get_paginated_orders_handler(
         Ok(orders) => Ok(HttpResponse::Ok().json(orders)),
         Err(err) => Err(err),
     }
+
+    println!("get_paginated_orders_handler 时间间隔: {:?}", SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap()
+        .as_millis());
 }
 
 pub async fn create_client_order_handler(
@@ -92,6 +117,9 @@ pub async fn create_client_order_handler(
     >,
     req: web::Json<ClientOrderRequestDto>,
 ) -> Result<HttpResponse, AppError> {
+
+    use std::time::{SystemTime, UNIX_EPOCH};
+
     match service
         .create_client_order(req.client_id, req.node_id, req.car_value)
         .await
@@ -99,6 +127,11 @@ pub async fn create_client_order_handler(
         Ok(_) => Ok(HttpResponse::Created().finish()),
         Err(err) => Err(err),
     }
+
+    println!("create_client_order_handler 时间间隔: {:?}", SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap()
+        .as_millis());
 }
 
 pub async fn create_dispatcher_order_handler(
@@ -112,6 +145,9 @@ pub async fn create_dispatcher_order_handler(
     >,
     req: web::Json<DispatcherOrderRequestDto>,
 ) -> Result<HttpResponse, AppError> {
+
+    use std::time::{SystemTime, UNIX_EPOCH};
+
     match service
         .create_dispatcher_order(
             req.order_id,
@@ -124,4 +160,9 @@ pub async fn create_dispatcher_order_handler(
         Ok(_) => Ok(HttpResponse::Ok().finish()),
         Err(err) => Err(err),
     }
+
+    println!("create_dispatcher_order_handler 时间间隔: {:?}", SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap()
+        .as_millis());
 }

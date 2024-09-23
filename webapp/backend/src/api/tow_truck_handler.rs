@@ -23,6 +23,9 @@ pub async fn get_paginated_tow_trucks_handler(
     >,
     query: web::Query<PaginatedTowTruckQuery>,
 ) -> Result<HttpResponse, AppError> {
+
+    use std::time::{SystemTime, UNIX_EPOCH};
+
     let tow_trucks = service
         .get_all_tow_trucks(
             query.page.unwrap_or(0),
@@ -33,6 +36,11 @@ pub async fn get_paginated_tow_trucks_handler(
         .await?;
 
     Ok(HttpResponse::Ok().json(tow_trucks))
+
+    println!("get_paginated_tow_trucks_handler 时间间隔: {:?}", SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap()
+        .as_millis());
 }
 
 pub async fn get_tow_truck_handler(
@@ -41,12 +49,20 @@ pub async fn get_tow_truck_handler(
     >,
     path: web::Path<i32>,
 ) -> Result<HttpResponse, AppError> {
+
+    use std::time::{SystemTime, UNIX_EPOCH};
+
     let id = path.into_inner();
     match service.get_tow_truck_by_id(id).await {
         Ok(Some(tow_truck)) => Ok(HttpResponse::Ok().json(tow_truck)),
         Ok(None) => Ok(HttpResponse::NotFound().finish()),
         Err(err) => Err(err),
     }
+
+    println!("get_tow_truck_handler 时间间隔: {:?}", SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap()
+        .as_millis());
 }
 
 pub async fn update_location_handler(
@@ -55,10 +71,19 @@ pub async fn update_location_handler(
     >,
     req: web::Json<UpdateLocationRequestDto>,
 ) -> Result<HttpResponse, AppError> {
+
+    use std::time::{SystemTime, UNIX_EPOCH};
+
     service
         .update_location(req.tow_truck_id, req.node_id)
         .await?;
     Ok(HttpResponse::Ok().finish())
+
+    println!("update_location_handler 时间间隔: {:?}", SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap()
+        .as_millis());
+
 }
 
 #[derive(Deserialize, Debug)]
@@ -72,6 +97,9 @@ pub async fn get_nearest_available_tow_trucks_handler(
     >,
     query: web::Query<TowTruckQuery>,
 ) -> Result<HttpResponse, AppError> {
+
+    use std::time::{SystemTime, UNIX_EPOCH};
+
     match service
         .get_nearest_available_tow_trucks(query.order_id)
         .await
@@ -80,4 +108,9 @@ pub async fn get_nearest_available_tow_trucks_handler(
         Ok(None) => Ok(HttpResponse::NotFound().finish()),
         Err(err) => Err(err),
     }
+
+    println!("get_nearest_available_tow_trucks_handler 时间间隔: {:?}", SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap()
+        .as_millis());
 }
