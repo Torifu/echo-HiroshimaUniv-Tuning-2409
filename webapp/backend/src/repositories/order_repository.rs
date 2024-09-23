@@ -51,38 +51,29 @@ impl OrderRepository for OrderRepositoryImpl {
         status: Option<String>,
         area: Option<i32>,
     ) -> Result<Vec<Order>, AppError> {
-        // 计算 offset
         let offset = page * page_size;
-
-        // 构建排序子句，默认排序依据是 order_time，默认升序
         let order_clause = format!(
             "ORDER BY {} {}",
             match sort_by.as_deref() {
                 Some("car_value") => "o.car_value",
                 Some("status") => "o.status",
+                Some("order_time") => "o.order_time",
                 _ => "o.order_time",
             },
             match sort_order.as_deref() {
-                Some("DESC" | "desc") => "DESC",
+                Some("DESC") => "DESC",
+                Some("desc") => "DESC",
                 _ => "ASC",
             }
         );
 
-        // 构建 WHERE 子句
-        let mut where_conditions = vec![];
-        if let Some(status) = &status {
-            where_conditions.push("o.status = ?");
-        }
-        if let Some(_) = area {
-            where_conditions.push("n.area_id = ?");
-        }
-        let where_clause = if !where_conditions.is_empty() {
-            format!("WHERE {}", where_conditions.join(" AND "))
-        } else {
-            "".to_string()
+        let where_clause = match (status.clone(), area) {
+            (Some(_), Some(_)) => "WHERE o.status = ? AND n.area_id = ?".to_string(),
+            (None, Some(_)) => "WHERE n.area_id = ?".to_string(),
+            (Some(_), None) => "WHERE o.status = ?".to_string(),
+            _ => "".to_string(),
         };
 
-        // 完整的 SQL 查询语句
         let sql = format!(
             "SELECT 
                 o.id, 
@@ -107,20 +98,40 @@ impl OrderRepository for OrderRepositoryImpl {
             where_clause, order_clause
         );
 
-        // 构建参数绑定
-        let mut query = sqlx::query_as::<_, Order>(&sql);
-        if let Some(status) = status {
-            query = query.bind(status);
-        }
-        if let Some(area) = area {
-            query = query.bind(area);
-        }
-
-        // 绑定分页参数
-        query = query.bind(page_size).bind(offset);
-
-        // 执行查询
-        let orders = query.fetch_all(&self.pool).await?;
+        let orders = match (status, area) {
+            (Some(status), Some(area)) => {
+                sqlx::query_as::<_, Order>(&sql)
+                    .bind(status)
+                    .bind(area)
+                    .bind(page_size)
+                    .bind(offset)
+                    .fetch_all(&self.pool)
+                    .await?
+            }
+            (None, Some(area)) => {
+                sqlx::query_as::<_, Order>(&sql)
+                    .bind(area)
+                    .bind(page_size)
+                    .bind(offset)
+                    .fetch_all(&self.pool)
+                    .await?
+            }
+            (Some(status), None) => {
+                sqlx::query_as::<_, Order>(&sql)
+                    .bind(status)
+                    .bind(page_size)
+                    .bind(offset)
+                    .fetch_all(&self.pool)
+                    .await?
+            }
+            _ => {
+                sqlx::query_as::<_, Order>(&sql)
+                    .bind(page_size)
+                    .bind(offset)
+                    .fetch_all(&self.pool)
+                    .await?
+            }
+        };
 
         Ok(orders)
     }
@@ -174,7 +185,7 @@ impl OrderRepository for OrderRepositoryImpl {
 
         Ok(())
     }
-
+  
     // 优化未完成
     // async fn find_orderDto_by_id(&self, id: i32) -> Result<OrderDto, AppError> {
     //     let order = sqlx::query_as::<_, OrderDto>(
@@ -201,4 +212,5 @@ impl OrderRepository for OrderRepositoryImpl {
 
     //     Ok(order)
     // }
+
 }
