@@ -185,4 +185,32 @@ impl OrderRepository for OrderRepositoryImpl {
 
         Ok(())
     }
+  
+    // 优化未完成
+    // async fn find_orderDto_by_id(&self, id: i32) -> Result<OrderDto, AppError> {
+    //     let order = sqlx::query_as::<_, OrderDto>(
+    //         "SELECT 
+    //             o.id as id,
+    //             o.client_id as client_id,
+    //             u.username as client_username,
+
+
+    //         FROM
+    //             orders o
+    //         JOIN  
+    //             users u ON o.client_id = u.id
+    //         JOIN 
+    //             dispatchers d ON o.dispatcher_id = d.id  
+    //         JOIN 
+    //             t ON tow_truck_id    
+    //         WHERE
+    //             id = ?",
+    //     )
+    //     .bind(id)
+    //     .fetch_one(&self.pool)
+    //     .await?;
+
+    //     Ok(order)
+    // }
+
 }
