@@ -175,6 +175,7 @@ impl OrderRepository for OrderRepositoryImpl {
         Ok(())
     }
 
+    // 优化未完成
     // async fn find_orderDto_by_id(&self, id: i32) -> Result<OrderDto, AppError> {
     //     let order = sqlx::query_as::<_, OrderDto>(
     //         "SELECT 
