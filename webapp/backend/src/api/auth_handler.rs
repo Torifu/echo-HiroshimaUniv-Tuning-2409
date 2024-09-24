@@ -4,6 +4,7 @@ use crate::errors::AppError;
 use crate::repositories::auth_repository::AuthRepositoryImpl;
 use actix_web::{web, HttpResponse};
 use serde::{Deserialize, Serialize};
+use std::time::{SystemTime, UNIX_EPOCH};
 
 #[derive(Deserialize, Debug)]
 pub struct ValidateSessionQueryParams {
@@ -15,30 +16,53 @@ pub struct ValidationResponse {
     is_valid: bool,
 }
 
+//校验权限 session
 pub async fn validate_session_handler(
     service: web::Data<AuthService<AuthRepositoryImpl>>,
     query: web::Query<ValidateSessionQueryParams>,
 ) -> Result<HttpResponse, AppError> {
-    match &query.session_token {
+
+    // 开始计时
+    let start = Instant::now();
+
+    let result = match &query.session_token {
         Some(session_token) => match service.validate_session(session_token.as_str()).await {
             Ok(is_valid) => Ok(HttpResponse::Ok().json(ValidationResponse { is_valid })),
             Err(_) => Ok(HttpResponse::Ok().json(ValidationResponse { is_valid: false })),
         },
         None => Ok(HttpResponse::Ok().json(ValidationResponse { is_valid: false })),
     }
+
+    // 计算执行时间
+    let duration = start.elapsed();
+    println!("validate_session_handler 时间间隔: {:?}", duration);
+
+    //返回
+     result
 }
 
 pub async fn register_handler(
     service: web::Data<AuthService<AuthRepositoryImpl>>,
     req: web::Json<RegisterRequestDto>,
 ) -> Result<HttpResponse, AppError> {
-    match service
+
+    // 开始计时
+    let start = Instant::now();
+
+    let result = match service
         .register_user(&req.username, &req.password, &req.role, req.area_id)
         .await
     {
         Ok(response) => Ok(HttpResponse::Created().json(response)),
         Err(err) => Err(err),
     }
+
+    // 计算执行时间
+    let duration = start.elapsed();
+    println!("register_handler 时间间隔: {:?}", duration);
+
+    //返回
+     result
 }
 
 pub async fn login_handler(
@@ -46,17 +70,20 @@ pub async fn login_handler(
     req: web::Json<LoginRequestDto>,
 ) -> Result<HttpResponse, AppError> {
 
-    use std::time::{SystemTime, UNIX_EPOCH};
+    // 开始计时
+    let start = Instant::now();
     
-    match service.login_user(&req.username, &req.password).await {
+    let result = match service.login_user(&req.username, &req.password).await {
         Ok(response) => Ok(HttpResponse::Ok().json(response)),
         Err(err) => Err(err),
     }
 
-    println!("login_handler 时间间隔: {:?}", SystemTime::now()
-        .duration_since(UNIX_EPOCH)
-        .unwrap()
-        .as_millis());
+    // 计算执行时间
+    let duration = start.elapsed();
+    println!("login_handler 时间间隔: {:?}", duration);
+
+    //返回
+        result    
 }
 
 pub async fn logout_handler(
@@ -64,17 +91,20 @@ pub async fn logout_handler(
     req: web::Json<LogoutRequestDto>,
 ) -> Result<HttpResponse, AppError> {
 
-    use std::time::{SystemTime, UNIX_EPOCH};
+    // 开始计时
+    let start = Instant::now();
 
-    match service.logout_user(&req.session_token).await {
+    let result = match service.logout_user(&req.session_token).await {
         Ok(_) => Ok(HttpResponse::Ok().finish()),
         Err(_) => Ok(HttpResponse::Ok().finish()),
     }
 
-    println!("logout_handler 时间间隔: {:?}", SystemTime::now()
-        .duration_since(UNIX_EPOCH)
-        .unwrap()
-        .as_millis());
+    // 计算执行时间
+    let duration = start.elapsed();
+    println!("logout_handler 时间间隔: {:?}", duration);
+
+    //返回
+        result
 }
 
 #[derive(Deserialize, Debug)]
@@ -89,7 +119,8 @@ pub async fn user_profile_image_handler(
     query: web::Query<UserProfileImageQueryParams>,
 ) -> Result<HttpResponse, AppError> {
 
-    use std::time::{SystemTime, UNIX_EPOCH};
+    // 开始计时
+    let start = Instant::now();
     
     let user_id = path.into_inner();
     let width = query.w.unwrap_or(500);
@@ -97,11 +128,12 @@ pub async fn user_profile_image_handler(
     let profile_image_byte = service
         .get_resized_profile_image_byte(user_id, width, height)
         .await?;
+
+    // 计算执行时间
+    let duration = start.elapsed();
+    println!("user_profile_image_handler 时间间隔: {:?}", duration);
+
     Ok(HttpResponse::Ok()
         .content_type("image/png")
         .body(profile_image_byte))
-    println!("logout_handler 时间间隔: {:?}", SystemTime::now()
-        .duration_since(UNIX_EPOCH)
-        .unwrap()
-        .as_millis());    
 }

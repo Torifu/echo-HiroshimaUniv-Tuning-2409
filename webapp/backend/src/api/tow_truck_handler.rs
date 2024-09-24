@@ -8,6 +8,7 @@ use crate::{
 };
 use actix_web::{web, HttpResponse};
 use serde::Deserialize;
+use std::time::{SystemTime, UNIX_EPOCH};
 
 #[derive(Deserialize, Debug)]
 pub struct PaginatedTowTruckQuery {
@@ -24,7 +25,8 @@ pub async fn get_paginated_tow_trucks_handler(
     query: web::Query<PaginatedTowTruckQuery>,
 ) -> Result<HttpResponse, AppError> {
 
-    use std::time::{SystemTime, UNIX_EPOCH};
+    // 开始计时
+    let start = Instant::now();
 
     let tow_trucks = service
         .get_all_tow_trucks(
@@ -35,13 +37,11 @@ pub async fn get_paginated_tow_trucks_handler(
         )
         .await?;
 
-    Ok(HttpResponse::Ok().json(tow_trucks))
+    // 计算执行时间
+    let duration = start.elapsed();
+    println!("get_paginated_tow_trucks_handler 时间间隔: {:?}", duration);    
 
-    println!("get_paginated_tow_trucks_handler 时间间隔: {:?}", SystemTime::now()
-        .duration_since(UNIX_EPOCH)
-        .unwrap()
-        .as_millis());
-}
+    Ok(HttpResponse::Ok().json(tow_trucks))
 
 pub async fn get_tow_truck_handler(
     service: web::Data<
@@ -50,19 +50,22 @@ pub async fn get_tow_truck_handler(
     path: web::Path<i32>,
 ) -> Result<HttpResponse, AppError> {
 
-    use std::time::{SystemTime, UNIX_EPOCH};
+    // 开始计时
+    let start = Instant::now();
 
     let id = path.into_inner();
-    match service.get_tow_truck_by_id(id).await {
+    let result = match service.get_tow_truck_by_id(id).await {
         Ok(Some(tow_truck)) => Ok(HttpResponse::Ok().json(tow_truck)),
         Ok(None) => Ok(HttpResponse::NotFound().finish()),
         Err(err) => Err(err),
     }
 
-    println!("get_tow_truck_handler 时间间隔: {:?}", SystemTime::now()
-        .duration_since(UNIX_EPOCH)
-        .unwrap()
-        .as_millis());
+    // 计算执行时间
+    let duration = start.elapsed();
+    println!("get_tow_truck_handler 时间间隔: {:?}", duration);
+
+    // 返回处理结果
+    result
 }
 
 pub async fn update_location_handler(
@@ -72,18 +75,18 @@ pub async fn update_location_handler(
     req: web::Json<UpdateLocationRequestDto>,
 ) -> Result<HttpResponse, AppError> {
 
-    use std::time::{SystemTime, UNIX_EPOCH};
+    // 开始计时
+    let start = Instant::now();
 
     service
         .update_location(req.tow_truck_id, req.node_id)
         .await?;
+
+    // 计算执行时间
+    let duration = start.elapsed();
+    println!("update_location_handler 时间间隔: {:?}", duration);
+
     Ok(HttpResponse::Ok().finish())
-
-    println!("update_location_handler 时间间隔: {:?}", SystemTime::now()
-        .duration_since(UNIX_EPOCH)
-        .unwrap()
-        .as_millis());
-
 }
 
 #[derive(Deserialize, Debug)]
@@ -98,9 +101,10 @@ pub async fn get_nearest_available_tow_trucks_handler(
     query: web::Query<TowTruckQuery>,
 ) -> Result<HttpResponse, AppError> {
 
-    use std::time::{SystemTime, UNIX_EPOCH};
+    // 开始计时
+    let start = Instant::now();
 
-    match service
+    let result = match service
         .get_nearest_available_tow_trucks(query.order_id)
         .await
     {
@@ -109,8 +113,10 @@ pub async fn get_nearest_available_tow_trucks_handler(
         Err(err) => Err(err),
     }
 
-    println!("get_nearest_available_tow_trucks_handler 时间间隔: {:?}", SystemTime::now()
-        .duration_since(UNIX_EPOCH)
-        .unwrap()
-        .as_millis());
+    // 计算执行时间
+        let duration = start.elapsed();
+        println!("get_nearest_available_tow_trucks_handler 时间间隔: {:?}", duration);
+
+    // 返回处理结果
+    result    
 }
