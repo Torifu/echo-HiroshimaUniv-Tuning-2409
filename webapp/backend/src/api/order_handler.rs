@@ -29,7 +29,7 @@ pub async fn update_order_status_handler(
     let result = match service.update_order_status(req.order_id, &req.status).await {
         Ok(_) => Ok(HttpResponse::Ok().finish()),
         Err(err) => Err(err),
-    }
+    };
 
     // 计算执行时间
         let duration = start.elapsed();
@@ -58,7 +58,7 @@ pub async fn get_order_handler(
     let result = match service.get_order_by_id(path.into_inner()).await {
         Ok(order) => Ok(HttpResponse::Ok().json(order)),
         Err(err) => Err(err),
-    }
+    };
 
     // 计算执行时间
         let duration = start.elapsed();
@@ -106,7 +106,7 @@ pub async fn get_paginated_orders_handler(
     {
         Ok(orders) => Ok(HttpResponse::Ok().json(orders)),
         Err(err) => Err(err),
-    }
+    };
 
     // 计算执行时间
         let duration = start.elapsed();
@@ -137,7 +137,7 @@ pub async fn create_client_order_handler(
     {
         Ok(_) => Ok(HttpResponse::Created().finish()),
         Err(err) => Err(err),
-    }
+    };
 
     // 计算执行时间
         let duration = start.elapsed();
@@ -173,7 +173,7 @@ pub async fn create_dispatcher_order_handler(
     {
         Ok(_) => Ok(HttpResponse::Ok().finish()),
         Err(err) => Err(err),
-    }
+    };
 
     // 计算执行时间
         let duration = start.elapsed();

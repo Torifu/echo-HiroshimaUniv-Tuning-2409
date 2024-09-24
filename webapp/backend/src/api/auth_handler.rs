@@ -31,7 +31,7 @@ pub async fn validate_session_handler(
             Err(_) => Ok(HttpResponse::Ok().json(ValidationResponse { is_valid: false })),
         },
         None => Ok(HttpResponse::Ok().json(ValidationResponse { is_valid: false })),
-    }
+    };
 
     // 计算执行时间
     let duration = start.elapsed();
@@ -55,7 +55,7 @@ pub async fn register_handler(
     {
         Ok(response) => Ok(HttpResponse::Created().json(response)),
         Err(err) => Err(err),
-    }
+    };
 
     // 计算执行时间
     let duration = start.elapsed();
@@ -76,7 +76,7 @@ pub async fn login_handler(
     let result = match service.login_user(&req.username, &req.password).await {
         Ok(response) => Ok(HttpResponse::Ok().json(response)),
         Err(err) => Err(err),
-    }
+    };
 
     // 计算执行时间
     let duration = start.elapsed();
@@ -97,7 +97,7 @@ pub async fn logout_handler(
     let result = match service.logout_user(&req.session_token).await {
         Ok(_) => Ok(HttpResponse::Ok().finish()),
         Err(_) => Ok(HttpResponse::Ok().finish()),
-    }
+    };
 
     // 计算执行时间
     let duration = start.elapsed();

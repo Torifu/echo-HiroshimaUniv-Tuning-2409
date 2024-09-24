@@ -20,7 +20,7 @@ pub async fn update_edge_handler(
     {
         Ok(_) => Ok(HttpResponse::Ok().finish()),
         Err(err) => Err(err),
-    }
+    };
 
     // 计算执行时间
     let duration = start.elapsed();

@@ -58,7 +58,7 @@ pub async fn get_tow_truck_handler(
         Ok(Some(tow_truck)) => Ok(HttpResponse::Ok().json(tow_truck)),
         Ok(None) => Ok(HttpResponse::NotFound().finish()),
         Err(err) => Err(err),
-    }
+    };
 
     // 计算执行时间
     let duration = start.elapsed();
@@ -111,7 +111,7 @@ pub async fn get_nearest_available_tow_trucks_handler(
         Ok(Some(tow_truck)) => Ok(HttpResponse::Ok().json(tow_truck)),
         Ok(None) => Ok(HttpResponse::NotFound().finish()),
         Err(err) => Err(err),
-    }
+    };
 
     // 计算执行时间
         let duration = start.elapsed();
