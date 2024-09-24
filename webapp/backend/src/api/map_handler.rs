@@ -4,7 +4,7 @@ use crate::{
     repositories::map_repository::MapRepositoryImpl,
 };
 use actix_web::{web, HttpResponse};
-use std::time::{SystemTime, UNIX_EPOCH};
+use std::time::Instant;
 
 pub async fn update_edge_handler(
     service: web::Data<MapService<MapRepositoryImpl>>,

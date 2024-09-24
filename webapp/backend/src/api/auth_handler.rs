@@ -4,7 +4,7 @@ use crate::errors::AppError;
 use crate::repositories::auth_repository::AuthRepositoryImpl;
 use actix_web::{web, HttpResponse};
 use serde::{Deserialize, Serialize};
-use std::time::{SystemTime, UNIX_EPOCH};
+use std::time::Instant;
 
 #[derive(Deserialize, Debug)]
 pub struct ValidateSessionQueryParams {

@@ -9,7 +9,7 @@ use crate::repositories::order_repository::OrderRepositoryImpl;
 use crate::repositories::tow_truck_repository::TowTruckRepositoryImpl;
 use actix_web::{web, HttpResponse};
 use serde::Deserialize;
-use std::time::{SystemTime, UNIX_EPOCH};
+use std::time::Instant;
 
 pub async fn update_order_status_handler(
     service: web::Data<
