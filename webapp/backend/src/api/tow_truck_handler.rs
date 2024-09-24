@@ -8,7 +8,7 @@ use crate::{
 };
 use actix_web::{web, HttpResponse};
 use serde::Deserialize;
-use std::time::{SystemTime, UNIX_EPOCH};
+use std::time::Instant;
 
 #[derive(Deserialize, Debug)]
 pub struct PaginatedTowTruckQuery {
