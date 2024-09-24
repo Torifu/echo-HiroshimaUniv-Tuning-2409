@@ -42,6 +42,7 @@ pub async fn get_paginated_tow_trucks_handler(
     println!("get_paginated_tow_trucks_handler 时间间隔: {:?}", duration);    
 
     Ok(HttpResponse::Ok().json(tow_trucks))
+}    
 
 pub async fn get_tow_truck_handler(
     service: web::Data<
