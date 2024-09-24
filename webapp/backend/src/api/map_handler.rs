@@ -4,16 +4,17 @@ use crate::{
     repositories::map_repository::MapRepositoryImpl,
 };
 use actix_web::{web, HttpResponse};
+use std::time::{SystemTime, UNIX_EPOCH};
 
 pub async fn update_edge_handler(
     service: web::Data<MapService<MapRepositoryImpl>>,
     req: web::Json<UpdateEdgeRequestDto>,
 ) -> Result<HttpResponse, AppError> {
     
-    
-    use std::time::{SystemTime, UNIX_EPOCH};
+    // 开始计时
+    let start = Instant::now();
 
-    match service
+    let result = match service
         .update_edge(req.node_a_id, req.node_b_id, req.weight)
         .await
     {
@@ -21,8 +22,10 @@ pub async fn update_edge_handler(
         Err(err) => Err(err),
     }
 
-    println!("update_edge_handler 时间间隔: {:?}", SystemTime::now()
-        .duration_since(UNIX_EPOCH)
-        .unwrap()
-        .as_millis());
+    // 计算执行时间
+    let duration = start.elapsed();
+    println!("update_edge_handler 时间间隔: {:?}", duration);
+
+    //返回
+     result
 }

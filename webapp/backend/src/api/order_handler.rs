@@ -9,6 +9,7 @@ use crate::repositories::order_repository::OrderRepositoryImpl;
 use crate::repositories::tow_truck_repository::TowTruckRepositoryImpl;
 use actix_web::{web, HttpResponse};
 use serde::Deserialize;
+use std::time::{SystemTime, UNIX_EPOCH};
 
 pub async fn update_order_status_handler(
     service: web::Data<
@@ -21,18 +22,21 @@ pub async fn update_order_status_handler(
     >,
     req: web::Json<UpdateOrderStatusRequestDto>,
 ) -> Result<HttpResponse, AppError> {
-    
-    use std::time::{SystemTime, UNIX_EPOCH};
 
-    match service.update_order_status(req.order_id, &req.status).await {
+    // 开始计时
+    let start = Instant::now();
+
+    let result = match service.update_order_status(req.order_id, &req.status).await {
         Ok(_) => Ok(HttpResponse::Ok().finish()),
         Err(err) => Err(err),
     }
 
-    println!("update_order_status_handler 时间间隔: {:?}", SystemTime::now()
-        .duration_since(UNIX_EPOCH)
-        .unwrap()
-        .as_millis());
+    // 计算执行时间
+        let duration = start.elapsed();
+        println!("update_order_status_handler 时间间隔: {:?}", duration);
+
+    // 返回处理结果
+        result    
 
 }
 
@@ -48,17 +52,20 @@ pub async fn get_order_handler(
     path: web::Path<i32>,
 ) -> Result<HttpResponse, AppError> {
 
-    use std::time::{SystemTime, UNIX_EPOCH};
+    // 开始计时
+    let start = Instant::now();
 
-    match service.get_order_by_id(path.into_inner()).await {
+    let result = match service.get_order_by_id(path.into_inner()).await {
         Ok(order) => Ok(HttpResponse::Ok().json(order)),
         Err(err) => Err(err),
     }
 
-    println!("get_order_handler 时间间隔: {:?}", SystemTime::now()
-        .duration_since(UNIX_EPOCH)
-        .unwrap()
-        .as_millis());
+    // 计算执行时间
+        let duration = start.elapsed();
+        println!("get_order_handler 时间间隔: {:?}", duration);
+
+    // 返回处理结果
+        result    
 }
 
 #[derive(Deserialize, Debug)]
@@ -83,9 +90,10 @@ pub async fn get_paginated_orders_handler(
     query: web::Query<PaginatedOrderQuery>,
 ) -> Result<HttpResponse, AppError> {
 
-    use std::time::{SystemTime, UNIX_EPOCH};
+    // 开始计时
+    let start = Instant::now();
 
-    match service
+    let result = match service
         .get_paginated_orders(
             query.page.unwrap_or(0),
             query.page_size.unwrap_or(10),
@@ -100,10 +108,12 @@ pub async fn get_paginated_orders_handler(
         Err(err) => Err(err),
     }
 
-    println!("get_paginated_orders_handler 时间间隔: {:?}", SystemTime::now()
-        .duration_since(UNIX_EPOCH)
-        .unwrap()
-        .as_millis());
+    // 计算执行时间
+        let duration = start.elapsed();
+        println!("get_paginated_orders_handler 时间间隔: {:?}", duration);
+
+    // 返回处理结果
+        result    
 }
 
 pub async fn create_client_order_handler(
@@ -118,9 +128,10 @@ pub async fn create_client_order_handler(
     req: web::Json<ClientOrderRequestDto>,
 ) -> Result<HttpResponse, AppError> {
 
-    use std::time::{SystemTime, UNIX_EPOCH};
+    // 开始计时
+    let start = Instant::now();
 
-    match service
+    let result = match service
         .create_client_order(req.client_id, req.node_id, req.car_value)
         .await
     {
@@ -128,10 +139,12 @@ pub async fn create_client_order_handler(
         Err(err) => Err(err),
     }
 
-    println!("create_client_order_handler 时间间隔: {:?}", SystemTime::now()
-        .duration_since(UNIX_EPOCH)
-        .unwrap()
-        .as_millis());
+    // 计算执行时间
+        let duration = start.elapsed();
+        println!("create_client_order_handler 时间间隔: {:?}", duration);
+
+    // 返回处理结果
+        result    
 }
 
 pub async fn create_dispatcher_order_handler(
@@ -146,9 +159,10 @@ pub async fn create_dispatcher_order_handler(
     req: web::Json<DispatcherOrderRequestDto>,
 ) -> Result<HttpResponse, AppError> {
 
-    use std::time::{SystemTime, UNIX_EPOCH};
+    // 开始计时
+    let start = Instant::now();
 
-    match service
+    let result = match service
         .create_dispatcher_order(
             req.order_id,
             req.dispatcher_id,
@@ -161,8 +175,10 @@ pub async fn create_dispatcher_order_handler(
         Err(err) => Err(err),
     }
 
-    println!("create_dispatcher_order_handler 时间间隔: {:?}", SystemTime::now()
-        .duration_since(UNIX_EPOCH)
-        .unwrap()
-        .as_millis());
+    // 计算执行时间
+        let duration = start.elapsed();
+        println!("create_dispatcher_order_handler 时间间隔: {:?}", duration);
+
+    // 返回处理结果
+        result    
 }
