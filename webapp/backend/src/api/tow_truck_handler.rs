@@ -118,5 +118,5 @@ pub async fn get_nearest_available_tow_trucks_handler(
         println!("get_nearest_available_tow_trucks_handler 时间间隔: {:?}", duration);
 
     // 返回处理结果
-    result    
+        result        
 }
